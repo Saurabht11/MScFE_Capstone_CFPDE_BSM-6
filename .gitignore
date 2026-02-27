@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+
+# Data & results (kept local)
+data/*
+!data/.gitkeep
+results/*
+!results/.gitkeep

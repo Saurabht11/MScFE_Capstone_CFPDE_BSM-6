@@ -1,0 +1,10 @@
+httpx
+matplotlib
+nbformat
+numpy
+pandas
+pyarrow
+python-dateutil
+requests
+scipy
+tqdm
