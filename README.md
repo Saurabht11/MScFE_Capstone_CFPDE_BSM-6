@@ -40,7 +40,7 @@ Open and run:
 - `results/test/price_comparison_overall.csv`
 - Plots: `results/plots/*.png`
 
-## 4) Experimental design (basic + explainable)
+## 4) Experimental design
 
 - **Scope:** use **only the last 2 months** of **call option** quotes (hard cut by `max(QUOTE_DATE)`).
 - **Split:**
@@ -54,10 +54,10 @@ Open and run:
 - **Broader signal:** widen moneyness band and disable OTM-only filter (reduces “near-noise-floor” effect for very short-dated OTM options).
 - **Runtime control:** cap calibration rows per bucket (configurable) and cache α results to avoid recalibrating repeatedly.
 
-If you already have `data/combined_options_data.csv`, set `FETCH=False` in the notebook and run directly.
+If already have `data/combined_options_data.csv`, set `FETCH=False` in the notebook and run directly.
 
 
-## Methodology (aligned to research report)
+## Methodology
 - **Data scope:** Extract and analyze **only the last 2 months** of SPX EOD **call option** quotes from ThetaData.
 - **Split:** Month-1 = calibration, Month-2 = out-of-sample test.
 - **Cleaning:** basic quote sanity + spread/moneyness/DTE filters, then **static no-arbitrage filters** (bounds, vertical monotonicity, butterfly convexity, calendar monotonicity).
