@@ -1,0 +1,35 @@
+{
+  "total_months": 2,
+  "calib_months": 1,
+  "filters": {
+    "option_type": "call",
+    "max_rel_spread": 0.45,
+    "min_moneyness": 0.85,
+    "max_moneyness": 1.15,
+    "min_dte": 7,
+    "max_dte": 550,
+    "otm_only": false
+  },
+  "bsm": {
+    "sigma": 0.16,
+    "r": 0.035,
+    "q": 0.021
+  },
+  "cf_grid": {
+    "I_base": 26,
+    "J_base": 60,
+    "I_short": 65,
+    "J_short": 180,
+    "short_dte_max": 30
+  },
+  "alpha": {
+    "lo": 0.1,
+    "hi": 0.99,
+    "weight_mode": "spread",
+    "coarse_points": 5,
+    "max_calib_rows_per_bucket": 180,
+    "short_bucket_ensemble_runs": 1
+  },
+  "calib_quote_date_min": "2025-12-26",
+  "calib_quote_date_max": "2026-01-23"
+}

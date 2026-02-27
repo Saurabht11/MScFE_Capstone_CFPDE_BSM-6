@@ -1,0 +1,4 @@
+stage,n_rows
+raw_wide_to_long,67341
+after_basic_filters,54046
+after_no_arbitrage_filters,42069
