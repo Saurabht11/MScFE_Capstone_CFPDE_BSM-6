@@ -154,7 +154,7 @@ Data was stratified into 8 DTE (Days to Expiration) buckets:
 
 ## Conclusion
 
-The CF-PDE model demonstrates **superior pricing performance** on call options compared to the classical BSM model:
+The CF-PDE model demonstrates **better pricing performance** on call options compared to the classical BSM model:
 
 1. **Overall RMSE Improvement:** 55.9% (from $80.43 to $35.44)
 2. **Bias Reduction:** 60.1% (from -$40.58 to -$16.22)
