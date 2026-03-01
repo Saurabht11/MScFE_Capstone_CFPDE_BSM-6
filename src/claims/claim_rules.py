@@ -107,6 +107,7 @@ def build_claim_table(
         Inside_CF, Inside_BSM, MedNorm_CF, MedNorm_BSM, Gate_1_MAE_RMSE, 
         Gate_2_SpreadMetrics, Gate_5_AlphaStable, CF_Adds_Value
     """
+    rows: list[dict] = []
     for bucket, dfb in eval_rows.groupby("dte_bucket", dropna=False):
         dfb = dfb.copy()
 
@@ -145,6 +146,25 @@ def build_claim_table(
         )
 
     claim = pd.DataFrame(rows)
+    if claim.empty:
+        return pd.DataFrame(
+            columns=[
+                "dte_bucket",
+                "n",
+                "MAE_CF",
+                "MAE_BSM",
+                "RMSE_CF",
+                "RMSE_BSM",
+                "Inside_CF",
+                "Inside_BSM",
+                "MedNorm_CF",
+                "MedNorm_BSM",
+                "Gate_1_MAE_RMSE",
+                "Gate_2_SpreadMetrics",
+                "Gate_5_AlphaStable",
+                "CF_Adds_Value",
+            ]
+        )
 
     # alpha stability gate (rolling only)
     if alpha_hist is not None and not alpha_hist.empty:

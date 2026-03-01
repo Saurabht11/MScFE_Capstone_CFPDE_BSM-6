@@ -19,3 +19,7 @@ build/
 # System
 .DS_Store
 Thumbs.db
+
+# Local secrets
+creds.txt
+creds.local.txt

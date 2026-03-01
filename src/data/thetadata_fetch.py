@@ -1,7 +1,7 @@
 """ThetaData (ThetaTerminal v3) SPX EOD downloader.
 
-This module wraps the user-provided `thetadata_spx_eod_pipeline.py` logic into an importable
-function, plus adds a CLI-friendly interface.
+This module exposes reusable functions for downloading and assembling
+SPX EOD data into the project-wide wide-format schema.
 
 Key output:
 - combined_options_data.csv (wide format):
@@ -50,7 +50,7 @@ def month_chunks(start: date, end: date) -> Iterator[Tuple[date, date]]:
 
 
 def fetch_csv_stream(url: str, params: dict, timeout_s: int = 180) -> pd.DataFrame:
-    """Stream CSV line-by-line (memory-friendly) and return as DataFrame."""
+    """Stream CSV line-by-line and return as DataFrame."""
     rows = []
     header = None
 

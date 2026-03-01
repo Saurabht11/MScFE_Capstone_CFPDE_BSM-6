@@ -1,9 +1,9 @@
-"""Evaluation utilities (basic + explainable).
+"""Evaluation utilities for out-of-sample pricing analysis.
 
-This pipeline focuses on a single primary comparison metric:
+Primary comparison metric:
 - RMSE of model price vs MID, on the out-of-sample test month.
 
-We still keep contract-level outputs (P_CF, P_BSM, MID, ERR_*) for auditing.
+Contract-level outputs (P_CF, P_BSM, MID, ERR_*) are retained for auditability.
 """
 
 from __future__ import annotations

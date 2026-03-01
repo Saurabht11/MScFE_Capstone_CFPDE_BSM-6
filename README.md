@@ -1,6 +1,6 @@
 # MScFE Capstone Project: CF Time-Fractional PDE vs Black–Scholes (BSM) — Call Options
 
-This repository provides a **project-ready, reproducible** empirical pipeline:
+This repository provides a reproducible empirical pipeline for research reporting:
 
 **ThetaData (SPX EOD, calls) → Data prep → α calibration (Month 1) → Out-of-sample test (Month 2) → Observed vs BSM vs CF comparison + RMSE benchmark → Plots**
 
@@ -18,10 +18,11 @@ pip install -r requirements.txt
 In a separate terminal:
 
 ```bash
-java -jar ThetaTerminalv3.jar --creds-file=creds.txt
+java -jar ThetaTerminalv3.jar --creds-file=creds.local.txt
 ```
 
 Default base URL: `http://localhost:25503/v3`.
+Create `creds.local.txt` locally using the same format as `creds.example.txt`.
 
 ## 3) Run (recommended: notebook)
 
@@ -39,6 +40,8 @@ Open and run:
 - `results/test/price_comparison_daily.csv`
 - `results/test/price_comparison_overall.csv`
 - Plots: `results/plots/*.png`
+
+Core report plots are generated from `src/plots/plotting.py` via `run_project_pipeline(...)`.
 
 ## 4) Experimental design
 

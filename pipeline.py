@@ -1,20 +1,18 @@
 """
-MScFE Capstone — Project-ready replication pipeline
-CF time-fractional PDE (Caputo–Fabrizio style) vs classical Black–Scholes (BSM),
-focused on call options.
+MScFE Capstone — empirical replication pipeline for call-option pricing.
 
-This version is intentionally **basic + explainable**:
+The pipeline compares a Caputo–Fabrizio time-fractional PDE model with
+classical Black–Scholes–Merton (BSM) under a fixed design:
+- Use only the most recent 2 months of quotes (hard cut by max(QUOTE_DATE)).
+- Calibrate α by DTE bucket on month 1.
+- Evaluate out-of-sample on month 2.
+- Use BSM closed form with constant (sigma, r, q) as benchmark.
+- Report RMSE-focused model comparison outputs.
 
-- Use ONLY the last 2 months of quotes (hard cut by max(QUOTE_DATE)).
-- Calibration: calibrate α per DTE bucket using the FIRST month of that 2M window.
-- Test: evaluate out-of-sample on the SECOND month.
-- Benchmark: BSM (closed-form; equivalent to PDE solution) with constant (σ, r, q).
-- Compare ONLY RMSE (primary metric) to keep the empirical section clean.
-
-Speed / practicality features:
-- Higher PDE resolution ONLY for short maturities (DTE <= 30): I=60, J=200.
-- Broader data signal vs microstructure: widen moneyness band and disable OTM-only filter.
-- Calibration caching: once α is calibrated, it is saved and reloaded automatically.
+Operational settings:
+- Higher PDE resolution for short maturities (DTE <= 30): I=60, J=200.
+- Wider moneyness coverage and no OTM-only restriction.
+- Calibration and evaluation caching for reproducibility and runtime control.
 
 Outputs (default): results/
   - results/prepared_long_2m.parquet
@@ -145,6 +143,20 @@ def _cf_params_for_row(cfg: ProjectConfig, dte: float) -> CFPDEParams:
     return CFPDEParams(sigma=cfg.sigma, r=cfg.r, q=cfg.q, I=cfg.I_base, J=cfg.J_base)
 
 
+def _dataset_summary(df: pd.DataFrame) -> tuple[str, int, int]:
+    """Return period label, row count, and quote-date count."""
+    n_rows = int(len(df))
+    if n_rows == 0 or "QUOTE_DATE" not in df.columns:
+        return "N/A", n_rows, 0
+
+    qd = pd.to_datetime(df["QUOTE_DATE"], errors="coerce").dropna()
+    if len(qd) == 0:
+        return "N/A", n_rows, 0
+
+    period = f"{qd.min().date().strftime('%b %d, %Y')} to {qd.max().date().strftime('%b %d, %Y')}"
+    return period, n_rows, int(qd.nunique())
+
+
 def _calibration_cache_meta(cfg: ProjectConfig, calib: pd.DataFrame) -> dict:
     return {
         "total_months": cfg.total_months,
@@ -179,8 +191,7 @@ def _calibration_cache_meta(cfg: ProjectConfig, calib: pd.DataFrame) -> dict:
 
 def load_or_calibrate_alpha(df_calib: pd.DataFrame, out_dir: Path, cfg: ProjectConfig) -> pd.DataFrame:
     """
-    One-liner-friendly alpha step:
-      alpha_df = load_or_calibrate_alpha(calib_df, OUT_DIR, cfg)
+    Calibrate alpha by DTE bucket (or load cached results).
 
     Saves:
       results/calibration/alpha_by_bucket.csv
@@ -322,6 +333,9 @@ def run_project_pipeline(
     # 2) Split calib/test
     # -----------------------
     df_calib, df_test = split_calib_test(df_long, total_months=cfg.total_months, calib_months=cfg.calib_months)
+    total_period, total_rows, total_dates = _dataset_summary(df_long)
+    calib_period, calib_rows, calib_dates = _dataset_summary(df_calib)
+    test_period, test_rows, test_dates = _dataset_summary(df_test)
 
     calib_path = out_dir / "calibration_set_1m.parquet"
     test_path = out_dir / "test_set_1m.parquet"
@@ -347,7 +361,7 @@ def run_project_pipeline(
     eval_rows_path = test_dir / "eval_rows_test.parquet"
     alpha_mtime = alpha_path.stat().st_mtime if alpha_path.exists() else 0.0
 
-    # Cache-aware evaluation (saves a LOT of time when iterating on plots/tables)
+    # Reuse cached evaluations when alpha has not changed.
     if eval_rows_path.exists() and (not cfg.force_reprice_test) and (eval_rows_path.stat().st_mtime >= alpha_mtime):
         eval_rows = pd.read_parquet(eval_rows_path)
     else:
@@ -377,7 +391,7 @@ def run_project_pipeline(
     price_overall.to_csv(price_overall_path, index=False)
 
     # -----------------------
-    # 5) Plots (report-ready)
+    # 5) Plots
     # -----------------------
     if cfg.enable_plots:
         plot_mod.save_rmse_comparison_by_bucket(
@@ -408,6 +422,19 @@ def run_project_pipeline(
             price_daily=price_daily,
             out_png=plots_dir / "price_timeseries_test.png",
             title="Test month: Observed vs BSM vs CF daily mean price",
+        )
+
+        plot_mod.save_pipeline_diagram(
+            out_png=plots_dir / "pipeline_diagram.png",
+            total_period=total_period,
+            total_rows=total_rows,
+            total_dates=total_dates,
+            calib_period=calib_period,
+            calib_rows=calib_rows,
+            calib_dates=calib_dates,
+            test_period=test_period,
+            test_rows=test_rows,
+            test_dates=test_dates,
         )
 
     return {

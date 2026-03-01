@@ -182,7 +182,7 @@ def prepare_long_dataset(
 def scope_last_months(df: pd.DataFrame, months: int) -> pd.DataFrame:
     """Hard-cut dataset to only last `months` months based on max QUOTE_DATE.
 
-    This is the paper-friendly 'no leakage' scope rule (all steps use only this subset).
+    This enforces a no-leakage temporal scope rule for downstream steps.
     """
     if months is None or months <= 0:
         return df
